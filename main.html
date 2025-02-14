@@ -14,9 +14,22 @@
 	import { history } from './main.js'
 	
 	let bus = make_bus()
-	make_system(bus).start()
 	bus.on('keydown-keyz-control-shift', event => capture_event(() => history.redo(), event))
 	bus.on('keydown-keyz-control', event => capture_event(() => history.undo(), event))
+	bus.on('keydown-tab', event => capture_event(() => console.log('indent'), event))
+	bus.on('keydown-tab-shift', event => capture_event(() => console.log('dedent'), event))
+	bus.on('list-created', list => {
+		const { invoke, show, dismiss } = list
+		bus.on('keydown-tab-control-shift', event => capture_event(() => invoke(-1), event))
+		bus.on('keydown-space-control-shift', event => capture_event(() => invoke(-1), event))
+		bus.on('keydown-tab-control', event => capture_event(() => invoke(1), event))
+		bus.on('keydown-space-control', event => capture_event(() => invoke(1), event))
+		bus.on('keydown-escape', event => capture_event(() => show(false), event))
+		bus.on('keyup-controlleft', event => capture_event(() => dismiss(), event))
+		bus.on('keyup-controlright', event => capture_event(() => dismiss(), event))
+	})
+	
+	make_system(bus).start()
 	
 </script>
 </head>

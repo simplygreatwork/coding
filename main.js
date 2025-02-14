@@ -179,30 +179,9 @@ export const make_list = (bus, buffers) => {
 	
 	let open = false
 	let index = -1
-	const list = {}
-	listen()
-	return Object.assign(list, {})
-	
-	function listen() {
-		
-		bus.on('keydown-tab-control-shift', event => capture_event(() => invoke(-1), event))
-		bus.on('keydown-space-control-shift', event => capture_event(() => invoke(-1), event))
-		bus.on('keydown-tab-control', event => capture_event(() => invoke(1), event))
-		bus.on('keydown-space-control', event => capture_event(() => invoke(1), event))
-		bus.on('keydown-escape', event => capture_event(() => show(false), event))
-		bus.on('keyup-controlleft', control_released)
-		bus.on('keyup-controlright', control_released)
-		return list
-		
-		function control_released() {
-			
-			if (! open) return
-			show(false)
-			if (index == -1) return
-			buffers().unshift(buffers().splice(index, 1)[0])
-			bus.emit('buffer-selected', buffers()[0])				
-		}
-	}
+	const list = { invoke, show, dismiss }
+	bus.emit('list-created', list)
+	return list
 	
 	function invoke(direction) {
 		
@@ -239,6 +218,15 @@ export const make_list = (bus, buffers) => {
 			show(false)
 		})
 	}
+	
+	function dismiss() {
+		
+		if (! open) return
+		show(false)
+		if (index == -1) return
+		buffers().unshift(buffers().splice(index, 1)[0])
+		bus.emit('buffer-selected', buffers()[0])				
+	}
 }
 
 export const make_textarea = (element, bus) => {
@@ -256,7 +244,6 @@ export const make_textarea = (element, bus) => {
 		history.attach(textarea_)
 		textarea_.style.color = '#a6e22e'
 		textarea_.style.caretColor = 'white'
-		listen()
 	}
 	
 	function value(value_) {
@@ -285,12 +272,6 @@ export const make_textarea = (element, bus) => {
 			if (each == textarea_) each.style.display = 'block'
 			else each.style.display = 'none'
 		})
-	}
-	
-	function listen() {
-		
-		bus.on('keydown-tab', event => capture_event(() => console.log('keydown-tab'), event))
-		bus.on('keydown-tab-shift', event => capture_event(() => console.log('keydown-tab-shift'), event))
 	}
 }
 
