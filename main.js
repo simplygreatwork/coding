@@ -167,7 +167,7 @@ export const make_buffer = entry => {
 	}
 	
 	function write() {
-		console.log(`writing buffer: ${entry.name}`)
+		console.log(`should write buffer: ${entry.name}`)
 	}
 	
 	function name() {
@@ -287,33 +287,38 @@ export const make_display = element => {
 	
 	function follow(textarea) {
 		
-		display_.innerHTML = ''
-		display.textarea = textarea
+		unfollow(textarea_, textarea.element)
 		textarea_ = textarea.element
-		display.render({ begin: 0, end: Infinity }, 'javascript')
-		listen()
-	}
-	
-	function listen() {
-		
 		textarea_.addEventListener('input', on_input)
 		textarea_.addEventListener('scroll', on_scroll())
+		display_.innerHTML = ''
+		display.textarea = textarea
+		render({ begin: 0, end: Infinity }, 'javascript')
+		display_.scrollTop = textarea_.scrollTop
+	}
+	
+	function unfollow(a, b) {
+		
+		if (a) a.removeEventListener('input', on_input)
+		if (a) a.removeEventListener('scroll', on_scroll())
+		if (b) b.removeEventListener('input', on_input)
+		if (b) b.removeEventListener('scroll', on_scroll())
 	}
 	
 	function on_input(event) {
 		
 		if (event.inputType == 'insertText') {
 			const line = textarea_.cache.char_index_to_line_index(textarea_.selectionStart)
-			display.render({ begin: line, end: line }, 'javascript')
+			render({ begin: line, end: line }, 'javascript')
 		} else {
-			display.render(lines_in_view(textarea_), 'javascript')
+			render(lines_in_view(textarea_), 'javascript')
 		}
 	}
 	
 	function on_scroll() {
 		
 		const debounce_scroll_end = debounce(() => {
-			display.render(lines_in_view(textarea_), 'javascript')
+			render(lines_in_view(textarea_), 'javascript')
 			scrolling = false
 		}, 100)
 		
